@@ -1,5 +1,7 @@
 # Blockchain Commons GordianSigner-Android
 
+[![Build Status](https://travis-ci.org/bitmark-inc/GordianSigner-Android.svg?branch=master)](https://travis-ci.org/github/bitmark-inc/GordianSigner-Android)
+
 **Gordian Signer** is a useful tool that allows users to participate in a multisig by adding a signature to an otherwise unsigned or partially signed transaction (PSBT), where they did not initiate the transaction. (a real wallet is need to both initiate an account map and to initiate a transaction).
 
 ## Additional Information

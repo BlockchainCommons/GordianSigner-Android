@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimary">
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginTop="16dp"
+        android:text="@string/add_signer"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/buttonRemove"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/grey_rounded_background"
+        android:padding="8dp"
+        android:src="@drawable/ic_remove_circle_24"
+        android:text="@string/next"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvHeader" />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/editText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:background="@color/mine_shaft"
+        android:imeOptions="actionDone"
+        android:inputType="text"
+        android:padding="8dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/gray"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@id/buttonRemove"
+        app:layout_constraintEnd_toStartOf="@+id/buttonAdd"
+        app:layout_constraintStart_toEndOf="@id/buttonRemove"
+        app:layout_constraintTop_toTopOf="@id/buttonRemove" />
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/buttonAdd"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginEnd="32dp"
+        android:background="@drawable/grey_rounded_background"
+        android:padding="8dp"
+        android:src="@drawable/ic_add_circle_24"
+        android:text="@string/next"
+        app:layout_constraintBottom_toBottomOf="@id/buttonRemove"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/buttonRemove" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/wordsEditText"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginVertical="16dp"
+        android:background="@drawable/bordered_grey_rounded_background"
+        android:padding="16dp"
+        android:textSize="14sp"
+        app:layout_constraintBottom_toTopOf="@id/buttonAddSigner"
+        app:layout_constraintTop_toBottomOf="@id/editText" />
+
+    <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/buttonAddSigner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="24dp"
+        android:background="@drawable/grey_rounded_background"
+        android:text="@string/add_signer"
+        android:textColor="@color/colorAccent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,151 @@
+language: generic
+os: linux
+dist: bionic
+sudo: required
+
+git:
+  submodules: false
+
+stages:
+  - test
+  - deploy
+
+env:
+  global:
+    - ANDROID_HOME=${HOME}/android-sdk
+    - ANDROID_TOOLS=4333796
+    - TOOLS=${ANDROID_HOME}/tools
+    - PATH=${ANDROID_HOME}:${ANDROID_HOME}/emulator:${TOOLS}:${TOOLS}/bin:${ANDROID_HOME}/platform-tools:${PATH}
+    - ANDROID_BUILD_TOOL=30.0.2
+    - ANDROID_PLATFORM_API=android-30
+    - ADB_INSTALL_TIMEOUT=8
+    - GRAVIS_REPO="https://github.com/DanySK/Gravis-CI.git"
+    - GRAVIS="$HOME/gravis"
+    - JDK="1.8"
+    - TEST=false # Indicate stage 'test'
+    - DEPLOY=false # Indicate stage 'deploy'
+
+  # Define matrix for stage 'test'
+  jobs:
+    - API=23 ABI="default;armeabi-v7a" TEST=true DEPLOY=false
+    - API=30 ABI="google_apis;x86_64" TEST=true DEPLOY=false
+    #- API=24 ABI="default;arm64-v8a" TEST=true DEPLOY=false
+    - API=26 ABI="default;x86" TEST=true DEPLOY=false
+    - API=28 ABI="default;x86_64" TEST=true DEPLOY=false
+
+jobs:
+  include:
+    - stage: deploy
+      if: branch = master AND type = push
+      env: TEST=false DEPLOY=true
+      install: skip
+
+before_cache:
+  - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+  - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+
+cache:
+  directories:
+    - $HOME/.gradle/caches/
+    - $HOME/.gradle/wrapper/
+    - $HOME/.android/build-cache
+
+# This stage is for preparing the build and install Android related stuffs
+before_install:
+  # Setup basic things
+  - openssl aes-256-cbc -K $encrypted_b50ec0a5da0a_key -iv $encrypted_b50ec0a5da0a_iv -in .travis/release.keystore.enc -out keystores/release.keystore -d
+  - chmod +x gradlew
+  - chmod +x scripts/android-wait-for-emulator.sh
+  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+  - git submodule update --init --recursive
+
+  # Create properties files
+  - touch touch keystores/release.properties && touch app-center.properties
+  - echo -n >local.properties && echo "ndk.dir=ANDROID_NDK"$'\n'"sdk.dir=$ANDROID_HOME" >local.properties
+  - echo -n >app-center.properties && echo "api-key=$APP_CENTER_API_KEY" >app-center.properties
+  - echo -n >keystores/release.properties && echo "key.alias=btmrksgnr2020"$'\n'"key.store.password=$key.store.password"$'\n'"key.alias.password=$key.alias.password" >keystores/release.properties
+
+  # Set up JDK 8 for Android SDK
+  - git clone --depth 1 $GRAVIS_REPO $GRAVIS
+  - export TARGET_JDK="${JDK}"
+  - JDK="adopt@1.8"
+  - source $GRAVIS/install-jdk
+
+  # Install the Android SDK Dependency.
+  - wget -q "https://dl.google.com/android/repository/sdk-tools-linux-$ANDROID_TOOLS.zip" -O android-sdk-tools.zip
+  - unzip -q android-sdk-tools.zip -d ${ANDROID_HOME}
+  - rm android-sdk-tools.zip
+
+  # Silence warning.
+  - mkdir -p ~/.android
+  - echo 'count=0' > ~/.android/repositories.cfg
+
+  # Accept all licenses
+  - yes | sdkmanager --licenses >/dev/null
+
+  # Install android platform and build tool for targets
+  - echo y | sdkmanager --no_https "build-tools;$ANDROID_BUILD_TOOL" >/dev/null
+  - echo y | sdkmanager --no_https "platforms;$ANDROID_PLATFORM_API" >/dev/null
+  - echo y | sdkmanager --no_https "extras;android;m2repository" >/dev/null
+
+# This stage is for running test in devices matrix
+install:
+  # Install SDK tools
+  - echo y | sdkmanager --no_https "tools" >/dev/null
+  - echo y | sdkmanager --no_https "platform-tools" >/dev/null
+
+  - |
+    if [[ $ABI =~ "arm" ]]; then
+      # Download a pinned version of the emulator since default version can cause issues
+      echo 'Downloading emulator 28.0.23.0...'
+      emulator_version=5264690 # 29.2.1.0 (build_id 5889189) ==> 28.0.23.0 (build_id 5264690)
+      curl -fo emulator.zip "https://dl.google.com/android/repository/emulator-linux-$emulator_version.zip"
+      rm -rf "${ANDROID_HOME}/emulator"
+      unzip -q emulator.zip -d "${ANDROID_HOME}"
+      rm -f emulator.zip
+    else
+      echo 'Downloading emulator from sdkmanager...'
+      echo y | sdkmanager --no_https "emulator" >/dev/null
+    fi
+
+  # Install KVM
+  - sudo apt-get -y --no-install-recommends install bridge-utils libpulse0 libvirt-bin qemu-kvm virtinst ubuntu-vm-builder > /dev/null
+  - sudo apt-get install -y libxtst6 libnss3-dev libnspr4 libxss1 libasound2 libatk-bridge2.0-0 libgtk-3-0 libgdk-pixbuf2.0-0 > /dev/null
+
+  # Add travis user to groups
+  - sudo adduser $USER libvirt
+  - sudo adduser $USER kvm
+
+  # Create emulator and start
+  - echo y | sdkmanager --no_https "platforms;android-$API" >/dev/null
+  - echo y | sdkmanager --no_https "system-images;android-$API;$ABI" >/dev/null
+  - echo no | avdmanager --verbose create avd --force -n test -k "system-images;android-$API;$ABI"
+  - |
+    EMU_PARAMS="-verbose -no-snapshot -no-window -camera-back none -camera-front none -selinux permissive -qemu -m 2048"
+    EMU_COMMAND="emulator"
+    # This double "sudo" monstrosity is used to have Travis execute the
+    # emulator with its new group permissions and help preserve the rule
+    # of least privilege.
+    sudo -E sudo -u $USER -E bash -c "${ANDROID_HOME}/emulator/${EMU_COMMAND} -avd test ${AUDIO} ${EMU_PARAMS} &"
+
+  # Wait for emulator start
+  - ./scripts/android-wait-for-emulator.sh
+  - adb shell input keyevent 82 &
+
+  # Switch back to our target JDK version to build and run tests
+  - JDK="adopt@${TARGET_JDK}"
+  - source $GRAVIS/install-jdk
+
+script:
+  - sudo ./scripts/build-libwally-core.sh >/dev/null
+  - if [ $TEST = true ]; then ./gradlew clean testInhouseDebugUnitTest connectedInhouseDebugAndroidTest; fi
+  - if [ $DEPLOY = true ]; then ./gradlew clean -x test assembleInhouseDebug appCenterUploadInhouseDebug; else echo 'Ignored due to testing or PR or non-master branch'; fi
+
+notifications:
+  email:
+    - hieupham@bitmark.com
+    - hien@bitmark.com
+
+branches:
+  only:
+    - master

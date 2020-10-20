@@ -1,0 +1,3 @@
+key.alias=<your-release-ks-alias>
+key.store.password=<your-release-ks-password>
+key.alias.password=<your-release-ks-alias-password>

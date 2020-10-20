@@ -1,0 +1,68 @@
+<resources>
+    <string name="error">⚠️ Error</string>
+    <string name="success">✅️ Success</string>
+    <string name="confirm_account">Confirm Account</string>
+    <string name="import_account">Import Account</string>
+    <string name="sign_psbt">Sign PSBT</string>
+    <string name="input_your_account_map_json">Input your account map json</string>
+    <string name="input_your_12_recovery_words">input your 12 recovery words</string>
+    <string name="import_failed_please_review_your_12">Import failed, please review your 12 recovery words and try again!</string>
+    <string name="fill">FILL</string>
+    <string name="sign">SIGN</string>
+    <string name="export">EXPORT</string>
+    <string name="next">NEXT</string>
+    <string name="gordian_signers">Gordian Signers</string>
+
+    <string name="add">Add</string>
+    <string name="import_new">Import</string>
+    <string name="edit">Edit</string>
+    <string name="done">Done</string>
+    <string name="paste">Paste</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="to_get_started_allow_access_camera">To get started, allow Gordian Signer to access your camera.</string>
+    <string name="enable_camera_access">Enable Camera Access</string>
+    <string name="enable_access">Enable Access</string>
+    <string name="scan">Scan</string>
+    <string name="signers">Signers</string>
+    <string name="fill_account_map">Fill Account Map</string>
+
+    <string name="invalid_account_map">Invalid Account Map</string>
+    <string name="invalid_psbt">Invalid PSBT</string>
+    <string name="unable_to_sign_psbt_unknown_error">Unable to sign that psbt: unknown error</string>
+    <string name="clipboard_is_empty">Clipboard is empty</string>
+
+    <string name="valid_account_map">Valid Account Map ✅</string>
+    <string name="you_can_tap_fill_now_to_fill_your_account_map">You can tap the \"fill\" button to accept and fill your account map</string>
+    <string name="valid_psbt">Valid PSBT ✅</string>
+    <string name="you_can_tap_sign_button_to_sign_your_psbt">You can tap the \"sign\" button to sign your psbt</string>
+    <string name="psbt_signed">PSBT signed ✅</string>
+    <string name="you_may_now_export_it_by_tapping_the_export_button">You may now export it by tapping the \"export\" button"</string>
+    <string name="copy_to_clipboard">Copy to clipboard</string>
+    <string name="qr_code">QR code</string>
+    <string name="save_as_psbt_file">Save as .psbt file</string>
+    <string name="add_signer">Add Signer</string>
+    <string name="psbt_signer">PSBT Signer</string>
+
+    <string name="add_word_format">add word #%1$d</string>
+    <string name="seed_words_encrypted_and_saved">Your account is securely encrypted and saved to local storage 🔐</string>
+    <string name="some_thing_went_wrong_your_seed_words_were_not_saved">Something went wrong, your account has not been not saved!</string>
+    <string name="copied">Copied</string>
+    <string name="your_accounts_are_invalidated">Your accounts are invalidated since your device biometric authentication is changed or removed. Please clear the app data then using your 12 recovery words to import again.\n\nStorage &amp; cache->Clear storage</string>
+    <string name="auth_required">Authentication is required</string>
+    <string name="auth_for_signing">Authenticate for signing PSBT</string>
+    <string name="auth_for_updating_account_map">Authenticate for updating Account Map</string>
+    <string name="auth_for_storing_account">Authenticate for securely storing your account</string>
+    <string name="auth_for_deleting_account">Authenticate for permanently deleting your account</string>
+    <string name="device_authentication_setup_required">Device authentication setup like PIN/Pattern/Password is required</string>
+    <string name="no_account_found">No account was found. Using 12 recovery words to import to your wallet.</string>
+    <string name="psbt_is_unable_to_sign">PSBT is unable to sign.</string>
+    <string name="no_appropriate_account_found">No appropriate account was found for signing the PSBT.</string>
+    <string name="bad_descriptor">Bad descriptor.</string>
+    <string name="unsupported_format">Unsupported format.</string>
+    <string name="account_map_completed">Account map is already completed.</string>
+    <string name="could_not_delete_account">Could not permanently delete your account from local storage due to unexpected problem.</string>
+    <string name="fetching_accounts_failed">Fetching accounts from local storage failed.</string>
+    <string name="select_a_key">Select a Key</string>
+    <string name="result">Result</string>
+</resources>

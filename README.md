@@ -2,13 +2,18 @@
 
 [![Build Status](https://travis-ci.org/bitmark-inc/GordianSigner-Android.svg?branch=master)](https://travis-ci.org/github/bitmark-inc/GordianSigner-Android)
 
-**Gordian Signer** is a useful tool that allows users to participate in a multisig by adding a signature to an otherwise unsigned or partially signed transaction (PSBT), where they did not initiate the transaction. (a real wallet is need to both initiate an account map and to initiate a transaction).
+**Gordian Signer** allows users to participate in a multisig by adding a signature to an otherwise unsigned or partially signed PSBT, where they did not initiate the transaction. It can also be used for signing a single-signature PSBT. It's largely intended as an offline signing tool, which allows signing without the usage of a full node: a real wallet is need to both initiate an account map and to initiate a transaction.
 
 ## Additional Information
 
-The following files contain…
+This is a companion app for the Gordian system:
 
-* `$ListOfEssentialDocs`
+* [Gordian system](https://github.com/BlockchainCommons/Gordian) — A self-sovereign Bitcoin wallet and node
+
+Gordian Signer is a multiplatform utility that's also available as:
+
+* [GordianSigner for iOS](https://github.com/BlockchainCommons/GordianSigner-Catalyst)
+* [GordianSigner for MacOS](https://github.com/BlockchainCommons/GordianSigner-macOS)
 
 ## Status - Late Alpha
 
@@ -77,6 +82,8 @@ The following people directly contributed to this repository. You can add your n
 | Name              | Role                | Github                                            | Email                                 | GPG Fingerprint                                    |
 | ----------------- | ------------------- | ------------------------------------------------- | ------------------------------------- | -------------------------------------------------- |
 | Christopher Allen | Principal Architect | [@ChristopherA](https://github.com/ChristopherA) | \<ChristopherA@LifeWithAlacrity.com\> | FDFE 14A5 4ECB 30FC 5D22  74EF F8D3 6C91 3574 05ED |
+
+GordianSigner-Android was produced as a collaboration between Blockchain Commons and one of our patrons, [Bitmark](https://bitmark.com/): Bitmark wrote the utility based on Blockchain Commons' codebase. Blockchain Commons is dedicated to not just creating open infrastructure on our own, but also coordinating the work of other companies in benefiting the Commons. Thanks to Bitmark for being the first company to work directly with us in this manner.
 
 ## Responsible Disclosure
 

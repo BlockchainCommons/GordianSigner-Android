@@ -1,5 +1,7 @@
 # Blockchain Commons GordianSigner-Android
 
+### _by Hieu Pham and Christopher Allen_
+
 [![Build Status](https://travis-ci.org/bitmark-inc/GordianSigner-Android.svg?branch=master)](https://travis-ci.org/github/bitmark-inc/GordianSigner-Android)
 
 ![](images/logos/gordian-signer-screen-android.jpg)
@@ -84,6 +86,7 @@ The following people directly contributed to this repository. You can add your n
 | Name              | Role                | Github                                            | Email                                 | GPG Fingerprint                                    |
 | ----------------- | ------------------- | ------------------------------------------------- | ------------------------------------- | -------------------------------------------------- |
 | Christopher Allen | Principal Architect | [@ChristopherA](https://github.com/ChristopherA) | \<ChristopherA@LifeWithAlacrity.com\> | FDFE 14A5 4ECB 30FC 5D22  74EF F8D3 6C91 3574 05ED |
+| Hieu Pham | Software Engineer | [@jollyjoker992](https://github.com/jollyjoker992) | \<hieupham@bitmark.com\> | D14E 5669 6799 6C69 4B22 E13A 7E80 8AC5 0392 AD3A |
 
 ### Contributing Sponsor
 

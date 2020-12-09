@@ -85,7 +85,11 @@ The following people directly contributed to this repository. You can add your n
 | ----------------- | ------------------- | ------------------------------------------------- | ------------------------------------- | -------------------------------------------------- |
 | Christopher Allen | Principal Architect | [@ChristopherA](https://github.com/ChristopherA) | \<ChristopherA@LifeWithAlacrity.com\> | FDFE 14A5 4ECB 30FC 5D22  74EF F8D3 6C91 3574 05ED |
 
-GordianSigner-Android was produced as a collaboration between Blockchain Commons and one of our patrons, [Bitmark](https://bitmark.com/): Bitmark wrote the utility based on Blockchain Commons' codebase. Blockchain Commons is dedicated to not just creating open infrastructure on our own, but also coordinating the work of other companies in benefiting the Commons. Thanks to Bitmark for being the first company to work directly with us in this manner.
+### Contributing Sponsor
+
+**Gordian-Signer Android** was produced as a collaboration between Blockchain Commons and one of our patrons, Bitmark: Bitmark wrote the library based on Blockchain Commons' specifications and reference libraries. Blockchain Commons is dedicated to not just creating open infrastructure on our own, but also coordinating the work of other companies in benefiting the Commons. Thanks to Bitmark for being the first company to work directly with us in this manner.
+
+![](images/logos/bitmark-logo.png)
 
 ## Responsible Disclosure
 

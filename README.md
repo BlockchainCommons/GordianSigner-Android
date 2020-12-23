@@ -1,6 +1,6 @@
 # Blockchain Commons GordianSigner-Android
 
-### _by [https://github.com/jollyjoker992](Hiếu Phạm) and [https://github.com/ChristopherA](Christopher Allen)_
+### _by [Hiếu Phạm](https://github.com/jollyjoker992) and [Christopher Allen](https://github.com/ChristopherA)_
 
 [![Build Status](https://travis-ci.org/bitmark-inc/GordianSigner-Android.svg?branch=master)](https://travis-ci.org/github/bitmark-inc/GordianSigner-Android)
 

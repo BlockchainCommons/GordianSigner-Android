@@ -1,4 +1,4 @@
-# Blockchain Commons GordianSigner-Android
+# Blockchain Commons GordianCosigner-Android
 
 ### _by [Hiếu Phạm](https://github.com/jollyjoker992) and [Christopher Allen](https://github.com/ChristopherA)_
 
@@ -6,7 +6,7 @@
 
 ![](images/logos/gordian-signer-screen-android.jpg)
 
-**Gordian Signer** allows users to participate in a multisig by adding a signature to an otherwise unsigned or partially signed PSBT, where they did not initiate the transaction. It can also be used for signing a single-signature PSBT. It's largely intended as an offline signing tool, which allows signing without the usage of a full node: a real wallet is need to both initiate an account map and to initiate a transaction.
+**Gordian Cosigner** allows users to participate in a multisig by adding a signature to an otherwise unsigned or partially signed PSBT, where they did not initiate the transaction. It can also be used for signing a single-signature PSBT. It's largely intended as an offline signing tool, which allows signing without the usage of a full node: a real wallet is need to both initiate an account map and to initiate a transaction.
 
 ## Additional Information
 
@@ -14,14 +14,14 @@ This is a companion app for the Gordian system:
 
 * [Gordian system](https://github.com/BlockchainCommons/Gordian) — A self-sovereign Bitcoin wallet and node
 
-Gordian Signer is a multiplatform utility that's also available as:
+**GordianCosigner** is a multiplatform utility that's also available as:
 
-* [GordianSigner for iOS](https://github.com/BlockchainCommons/GordianSigner-Catalyst)
-* [GordianSigner for MacOS](https://github.com/BlockchainCommons/GordianSigner-macOS)
+* [GordianCosigner for iOS](https://github.com/BlockchainCommons/GordianSigner-Catalyst)
+* [GordianCosigner for MacOS](https://github.com/BlockchainCommons/GordianSigner-macOS)
 
 ## Status - Late Alpha
 
-GordianSigner-Android is currently under active development and in the late alpha testing phase. It should not be used for production tasks until it has had further testing and auditing.
+**GordianCosigner-Android** is currently under active development and in the late alpha testing phase. It should not be used for production tasks until it has had further testing and auditing.
 
 ## Origin, Authors, Copyright & Licenses
 
@@ -37,27 +37,27 @@ This table below also establishes provenance (repository of origin, permalink, a
 
 ### Dependencies
 
-To build GordianSigner-Android you'll need to use the following tools:
+To build **GordianCosigner-Android** you'll need to use the following tools:
 
 - autotools - Gnu Build System from Free Software Foundation ([intro](https://www.gnu.org/software/automake/manual/html_node/Autotools-Introduction.html)).
 
 ### Derived from…
 
-This GordianSigner-Android project is either derived from or was inspired by:
+This **GordianCosigner-Android** project is either derived from or was inspired by:
 
 - [community/repo-name/](https://github.com/community/repo-name) — Repo that does what, by [developer](https://github.com/developer)  or from  [community](https://community.com).
 
 ### Used with…
 
-These are other projects that work with or leverage GordianSigner-Android:
+These are other projects that work with or leverage **GordianCosigner-Android**:
 
 - [community/repo-name/](https://github.com/community/repo-name) — Repo that does what, by [developer](https://github.com/developer)  or from  [community](https://community.com).
 
 ## Financial Support
 
-GordianSigner-Android is a project of [Blockchain Commons](https://www.blockchaincommons.com/). We are proudly a "not-for-profit" social benefit corporation committed to open source & open development. Our work is funded entirely by donations and collaborative partnerships with people like you. Every contribution will be spent on building open tools, technologies, and techniques that sustain and advance blockchain and internet security infrastructure and promote an open web.
+**GordianCosigner-Android** is a project of [Blockchain Commons](https://www.blockchaincommons.com/). We are proudly a "not-for-profit" social benefit corporation committed to open source & open development. Our work is funded entirely by donations and collaborative partnerships with people like you. Every contribution will be spent on building open tools, technologies, and techniques that sustain and advance blockchain and internet security infrastructure and promote an open web.
 
-To financially support further development of GordianSigner-Android and other projects, please consider becoming a Patron of Blockchain Commons through ongoing monthly patronage as a [GitHub Sponsor](https://github.com/sponsors/BlockchainCommons). You can also support Blockchain Commons with bitcoins at our [BTCPay Server](https://btcpay.blockchaincommons.com/).
+To financially support further development of **GordianCosigner-Android** and other projects, please consider becoming a Patron of Blockchain Commons through ongoing monthly patronage as a [GitHub Sponsor](https://github.com/sponsors/BlockchainCommons). You can also support Blockchain Commons with bitcoins at our [BTCPay Server](https://btcpay.blockchaincommons.com/).
 
 ## Contributing
 
@@ -90,7 +90,7 @@ The following people directly contributed to this repository. You can add your n
 
 ### Contributing Sponsor
 
-**Gordian-Signer Android** was produced as a collaboration between Blockchain Commons and one of our patrons, Bitmark: Bitmark wrote the library based on Blockchain Commons' specifications and reference libraries. Blockchain Commons is dedicated to not just creating open infrastructure on our own, but also coordinating the work of other companies in benefiting the Commons. Thanks to Bitmark for being the first company to work directly with us in this manner.
+**Gordian-Cosigner Android** was produced as a collaboration between Blockchain Commons and one of our patrons, Bitmark: Bitmark wrote the library based on Blockchain Commons' specifications and reference libraries. Blockchain Commons is dedicated to not just creating open infrastructure on our own, but also coordinating the work of other companies in benefiting the Commons. Thanks to Bitmark for being the first company to work directly with us in this manner.
 
 ![](images/logos/bitmark-logo.png)
 

@@ -12,18 +12,19 @@ import androidx.biometric.BiometricManager
 import androidx.core.content.FileProvider
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
-import com.bc.gordiansigner.helper.Error.NO_APPROPRIATE_HD_KEY_ERROR
-import com.bc.gordiansigner.helper.Error.NO_HD_KEY_FOUND_ERROR
+import com.bc.gordiansigner.helper.Error.HD_KEY_NOT_MATCH_ERROR
 import com.bc.gordiansigner.helper.Error.PSBT_UNABLE_TO_SIGN_ERROR
 import com.bc.gordiansigner.helper.KeyStoreHelper
 import com.bc.gordiansigner.helper.ext.*
 import com.bc.gordiansigner.helper.view.ExportBottomSheetDialog
 import com.bc.gordiansigner.helper.view.QRCodeBottomSheetDialog
+import com.bc.gordiansigner.model.KeyInfo
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import com.bc.gordiansigner.ui.DialogController
 import com.bc.gordiansigner.ui.Navigator
 import com.bc.gordiansigner.ui.Navigator.Companion.RIGHT_LEFT
 import com.bc.gordiansigner.ui.account.AccountsActivity
+import com.bc.gordiansigner.ui.account.add_account.AddAccountActivity
 import com.bc.gordiansigner.ui.scan.QRScannerActivity
 import com.tbruyelle.rxpermissions2.RxPermissions
 import io.reactivex.Single
@@ -40,6 +41,7 @@ class PsbtSignActivity : BaseAppCompatActivity() {
         private const val TAG = "PsbtSignActivity"
         private const val REQUEST_CODE_QR_PSBT = 0x02
         private const val REQUEST_CODE_BROWSE = 0x03
+        private const val REQUEST_CODE_INPUT_KEY = 0x04
     }
 
     @Inject
@@ -51,6 +53,7 @@ class PsbtSignActivity : BaseAppCompatActivity() {
     @Inject
     internal lateinit var dialogController: DialogController
 
+    private lateinit var currentKeyInfo: KeyInfo
     private var export = false
     private val compositeDisposable = CompositeDisposable()
 
@@ -79,10 +82,9 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                     }
 
                     override fun onShowQR() {
-                        editText.text.toString().toQrCode(500).let {
-                            val qrDialog = QRCodeBottomSheetDialog(it)
-                            qrDialog.show(supportFragmentManager, QRCodeBottomSheetDialog.TAG)
-                        }
+                        val qrDialog =
+                            QRCodeBottomSheetDialog(editText.text.toString(), animateEnabled = true)
+                        qrDialog.show(supportFragmentManager, QRCodeBottomSheetDialog.TAG)
                     }
 
                     override fun onSaveFile() {
@@ -96,10 +98,27 @@ class PsbtSignActivity : BaseAppCompatActivity() {
         }
     }
 
-    private fun signPsbt() {
+    private fun signPsbt(keyInfo: KeyInfo? = null, seed: String? = null) {
         val psbt = editText.text.toString()
         if (psbt.isBlank()) return
-        viewModel.signPsbt(psbt)
+
+        if (keyInfo != null) {
+            currentKeyInfo = keyInfo
+            dialogController.confirm(
+                getString(R.string.confirm_to_sign_psbt),
+                getString(
+                    R.string.please_review_your_info_before_signing,
+                    keyInfo.fingerprint,
+                    keyInfo.alias
+                ),
+                positive = getString(R.string.sign),
+                positiveEvent = {
+                    viewModel.signPsbt(psbt, keyInfo, seed)
+                }
+            )
+        } else {
+            viewModel.getKeyToSign(psbt)
+        }
     }
 
     override fun observe() {
@@ -108,13 +127,15 @@ class PsbtSignActivity : BaseAppCompatActivity() {
         viewModel.psbtSigningLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    editText.setText(res.data())
-                    buttonNext.setText(R.string.export)
-                    export = true
-                    dialogController.alert(
-                        R.string.psbt_signed,
-                        R.string.you_may_now_export_it_by_tapping_the_export_button
-                    )
+                    res.data()?.let { base64 ->
+                        editText.setText(base64)
+                        buttonNext.setText(R.string.export)
+                        export = true
+                        dialogController.alert(
+                            R.string.psbt_signed,
+                            R.string.you_may_now_export_it_by_tapping_the_export_button
+                        )
+                    }
                 }
 
                 res.isError() -> {
@@ -129,7 +150,11 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                                     R.string.auth_required,
                                     R.string.auth_for_signing,
                                     successCallback = {
-                                        signPsbt()
+                                        viewModel.signPsbt(
+                                            editText.text.toString(),
+                                            currentKeyInfo,
+                                            null
+                                        )
                                     },
                                     failedCallback = { code ->
                                         if (code == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
@@ -141,9 +166,8 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                             })
                     ) {
                         val message = when (res.throwable()!!) {
-                            NO_HD_KEY_FOUND_ERROR -> R.string.no_account_found
                             PSBT_UNABLE_TO_SIGN_ERROR -> R.string.psbt_is_unable_to_sign
-                            NO_APPROPRIATE_HD_KEY_ERROR -> R.string.no_appropriate_account_found
+                            HD_KEY_NOT_MATCH_ERROR -> R.string.your_account_does_not_match_with_current_psbt
                             else -> R.string.unable_to_sign_psbt_unknown_error
                         }
                         dialogController.alert(
@@ -155,13 +179,68 @@ class PsbtSignActivity : BaseAppCompatActivity() {
             }
         })
 
+        viewModel.keyToSignCheckingLiveData.asLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    res.data()?.let { keyInfo ->
+                        if (!keyInfo.isEmpty() && keyInfo.isSaved) {
+                            signPsbt(keyInfo, null)
+                        } else {
+                            val bundle = AddAccountActivity.getBundle(keyInfo)
+                            navigator.anim(RIGHT_LEFT).startActivityForResult(
+                                AddAccountActivity::class.java,
+                                REQUEST_CODE_INPUT_KEY,
+                                bundle
+                            )
+                        }
+                    }
+                }
+
+                res.isError() -> {
+                    val message = when (res.throwable()!!) {
+                        PSBT_UNABLE_TO_SIGN_ERROR -> R.string.psbt_is_unable_to_sign
+                        HD_KEY_NOT_MATCH_ERROR -> R.string.your_account_does_not_match_with_current_psbt
+                        else -> R.string.unable_to_sign_psbt_unknown_error
+                    }
+                    dialogController.alert(
+                        R.string.error,
+                        message
+                    )
+                }
+            }
+        })
+
         viewModel.psbtCheckingLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    dialogController.alert(
-                        R.string.valid_psbt,
-                        R.string.you_can_tap_sign_button_to_sign_your_psbt
-                    )
+                    res.data()?.let { (joinedSigners, psbt) ->
+                        if (psbt.signable) {
+                            dialogController.alert(
+                                getString(R.string.valid_psbt),
+                                getString(
+                                    R.string.psbt_info,
+                                    psbt.signatures.size,
+                                    joinedSigners.joinToString {
+                                        "\n\t\uD83D\uDD11 ${if (it.alias.isNotEmpty()) {
+                                            getString(
+                                                R.string.fingerprint_alias_format,
+                                                it.fingerprint,
+                                                it.alias
+                                            )
+                                        } else {
+                                            it.fingerprint
+                                        }}"
+                                    }
+                                )
+                            )
+                        } else {
+                            editText.setText("")
+                            dialogController.alert(
+                                R.string.warning,
+                                R.string.the_psbt_has_been_fully_signed
+                            )
+                        }
+                    }
                 }
 
                 res.isError() -> {
@@ -181,8 +260,13 @@ class PsbtSignActivity : BaseAppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
+                val bundle = QRScannerActivity.getBundle(isUR = true)
                 navigator.anim(RIGHT_LEFT)
-                    .startActivityForResult(QRScannerActivity::class.java, REQUEST_CODE_QR_PSBT)
+                    .startActivityForResult(
+                        QRScannerActivity::class.java,
+                        REQUEST_CODE_QR_PSBT,
+                        bundle
+                    )
             }
             R.id.action_import -> {
                 navigator.browseDocument(requestCode = REQUEST_CODE_BROWSE)
@@ -231,6 +315,12 @@ class PsbtSignActivity : BaseAppCompatActivity() {
                             }, {
                                 //Ignored
                             }).let { compositeDisposable.add(it) }
+                    }
+                }
+                REQUEST_CODE_INPUT_KEY -> {
+                    data?.let {
+                        val (keyInfo, seed) = AddAccountActivity.extractResultData(it)
+                        signPsbt(keyInfo, seed)
                     }
                 }
                 else -> {

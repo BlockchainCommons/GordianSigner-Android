@@ -10,7 +10,7 @@ fun CharSequence.replaceSpaces() = this.replace("\\s+".toRegex(), " ").trim()
 fun String.toQrCode(size: Int, isReverted: Boolean = false): Bitmap {
     val writer = MultiFormatWriter()
     val hints = mapOf(
-        Pair(EncodeHintType.MARGIN, 2)
+        Pair(EncodeHintType.MARGIN, 1)
     )
     val bitMatrix = writer.encode(this, BarcodeFormat.QR_CODE, size, size, hints)
     return bitMatrix.toBitmap(size, isReverted)

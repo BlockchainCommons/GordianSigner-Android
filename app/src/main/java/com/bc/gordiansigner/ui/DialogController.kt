@@ -127,6 +127,8 @@ class DialogController(internal val activity: Activity) {
         positiveEvent: () -> Unit = {},
         negative: String = activity.getString(android.R.string.cancel),
         negativeEvent: () -> Unit = {},
+        neutral: String? = null,
+        neutralEvent: () -> Unit = {},
         dismissCallback: () -> Unit = {}
     ) {
         val dialog = TaggedAlertDialog(activity, tag)
@@ -144,6 +146,14 @@ class DialogController(internal val activity: Activity) {
         ) { d, _ ->
             d.dismiss()
             negativeEvent()
+        }
+        neutral?.let {
+            dialog.setButton(
+                DialogInterface.BUTTON_NEUTRAL, neutral
+            ) { d, _ ->
+                d.dismiss()
+                neutralEvent()
+            }
         }
         dialog.setCancelable(cancelable)
         dialog.setOnDismissListener(dismissListener(dismissCallback))
@@ -164,6 +174,8 @@ class DialogController(internal val activity: Activity) {
         positiveEvent: () -> Unit = {},
         @StringRes negative: Int = android.R.string.cancel,
         negativeEvent: () -> Unit = {},
+        @StringRes neutral: Int? = null,
+        neutralEvent: () -> Unit = {},
         dismissCallback: () -> Unit = {}
     ) {
         confirm(
@@ -175,6 +187,8 @@ class DialogController(internal val activity: Activity) {
             positiveEvent,
             activity.getString(negative),
             negativeEvent,
+            neutral?.let { activity.getString(it) },
+            neutralEvent,
             dismissCallback
         )
     }

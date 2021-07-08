@@ -2,3 +2,6 @@
 	path = deps/libwally-core
 	url = git@github.com:ElementsProject/libwally-core.git
 	branch = master
+[submodule "deps/bc-ur-java"]
+	path = deps/bc-ur-java
+	url = git@github.com:BlockchainCommons/bc-ur-java.git

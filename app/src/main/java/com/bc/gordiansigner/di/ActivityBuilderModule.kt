@@ -4,6 +4,8 @@ import com.bc.gordiansigner.ui.account.AccountsActivity
 import com.bc.gordiansigner.ui.account.AccountsModule
 import com.bc.gordiansigner.ui.account.add_account.AddAccountActivity
 import com.bc.gordiansigner.ui.account.add_account.AddAccountModule
+import com.bc.gordiansigner.ui.account.contact.ContactsActivity
+import com.bc.gordiansigner.ui.account.contact.ContactsModule
 import com.bc.gordiansigner.ui.scan.QRScannerActivity
 import com.bc.gordiansigner.ui.scan.QRScannerModule
 import com.bc.gordiansigner.ui.share_account.ShareAccountMapActivity
@@ -35,4 +37,8 @@ abstract class ActivityBuilderModule {
     @ContributesAndroidInjector(modules = [QRScannerModule::class])
     @ActivityScope
     internal abstract fun bindQRScannerActivity(): QRScannerActivity
+
+    @ContributesAndroidInjector(modules = [ContactsModule::class])
+    @ActivityScope
+    internal abstract fun bindContactsActivity(): ContactsActivity
 }

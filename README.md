@@ -20,6 +20,12 @@ This is a companion app for the Gordian system:
 * [GordianCosigner for iOS](https://github.com/BlockchainCommons/GordianSigner-Catalyst)
 * [GordianCosigner for MacOS](https://github.com/BlockchainCommons/GordianSigner-macOS)
 
+Some of Cosigner's functioanlity has been superceded by the newer Gordian SeedTool app:
+
+* [Gordian SeedTool](https://github.com/BlockchainCommons/GordianSeedTool-iOS) — An app for storing seeds and for signing PSBTs with those seeds
+
+However, they both remain useful reference apps for demonstrating the use of Gordian Principles and Blockchain Commons specifications, and Cosigner is currently the only Android-compatible app.
+
 ## Gordian Principles
 
 **Gordian Cosigner** is a reference implementation meant to display the [Gordian Principles](https://github.com/BlockchainCommons/Gordian#gordian-principles), which are philosophical and technical underpinnings to Blockchain Commons' Gordian technology. This includes:

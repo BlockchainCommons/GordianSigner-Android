@@ -8,6 +8,7 @@
         <item name="android:textColor">@color/white</item>
         <item name="android:itemBackground">@color/tundora</item>
         <item name="bottomSheetDialogTheme">@style/AppBottomSheetDialogTheme</item>
+        <item name="colorControlActivated">@color/apple</item>
     </style>
 
     <style name="AlertDialogCustom" parent="Theme.AppCompat.DayNight.Dialog.Alert">

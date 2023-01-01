@@ -12,10 +12,10 @@ stages:
 
 env:
   global:
-    - ANDROID_HOME=${HOME}/android-sdk
+    - ANDROID_SDK_ROOT=${HOME}/android-sdk
     - ANDROID_TOOLS=4333796
-    - TOOLS=${ANDROID_HOME}/tools
-    - PATH=${ANDROID_HOME}:${ANDROID_HOME}/emulator:${TOOLS}:${TOOLS}/bin:${ANDROID_HOME}/platform-tools:${PATH}
+    - TOOLS=${ANDROID_SDK_ROOT}/tools
+    - PATH=${ANDROID_SDK_ROOT}:${ANDROID_SDK_ROOT}/emulator:${TOOLS}:${TOOLS}/bin:${ANDROID_SDK_ROOT}/platform-tools:${PATH}
     - ANDROID_BUILD_TOOL=30.0.2
     - ANDROID_PLATFORM_API=android-30
     - ADB_INSTALL_TIMEOUT=8
@@ -56,12 +56,20 @@ before_install:
   - openssl aes-256-cbc -K $encrypted_b50ec0a5da0a_key -iv $encrypted_b50ec0a5da0a_iv -in .travis/release.keystore.enc -out keystores/release.keystore -d
   - chmod +x gradlew
   - chmod +x scripts/android-wait-for-emulator.sh
+
+  # Specific dealing with submodules
   - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
-  - git submodule update --init --recursive
+  - git submodule init
+  - git submodule update
+  - pushd deps/bc-ur-java
+  - sed -i 's/git@github.com:/https:\/\/github.com\//' .gitmodules
+  - git submodule init
+  - git submodule update
+  - popd
 
   # Create properties files
   - touch touch keystores/release.properties && touch app-center.properties
-  - echo -n >local.properties && echo "ndk.dir=ANDROID_NDK"$'\n'"sdk.dir=$ANDROID_HOME" >local.properties
+  - echo -n >local.properties && echo "ndk.dir=ANDROID_NDK"$'\n'"sdk.dir=$ANDROID_SDK_ROOT" >local.properties
   - echo -n >app-center.properties && echo "api-key=$APP_CENTER_API_KEY" >app-center.properties
   - echo -n >keystores/release.properties && echo "key.alias=btmrksgnr2020"$'\n'"key.store.password=$key.store.password"$'\n'"key.alias.password=$key.alias.password" >keystores/release.properties
 
@@ -73,7 +81,7 @@ before_install:
 
   # Install the Android SDK Dependency.
   - wget -q "https://dl.google.com/android/repository/sdk-tools-linux-$ANDROID_TOOLS.zip" -O android-sdk-tools.zip
-  - unzip -q android-sdk-tools.zip -d ${ANDROID_HOME}
+  - unzip -q android-sdk-tools.zip -d ${ANDROID_SDK_ROOT}
   - rm android-sdk-tools.zip
 
   # Silence warning.
@@ -100,8 +108,8 @@ install:
       echo 'Downloading emulator 28.0.23.0...'
       emulator_version=5264690 # 29.2.1.0 (build_id 5889189) ==> 28.0.23.0 (build_id 5264690)
       curl -fo emulator.zip "https://dl.google.com/android/repository/emulator-linux-$emulator_version.zip"
-      rm -rf "${ANDROID_HOME}/emulator"
-      unzip -q emulator.zip -d "${ANDROID_HOME}"
+      rm -rf "${ANDROID_SDK_ROOT}/emulator"
+      unzip -q emulator.zip -d "${ANDROID_SDK_ROOT}"
       rm -f emulator.zip
     else
       echo 'Downloading emulator from sdkmanager...'
@@ -126,7 +134,7 @@ install:
     # This double "sudo" monstrosity is used to have Travis execute the
     # emulator with its new group permissions and help preserve the rule
     # of least privilege.
-    sudo -E sudo -u $USER -E bash -c "${ANDROID_HOME}/emulator/${EMU_COMMAND} -avd test ${AUDIO} ${EMU_PARAMS} &"
+    sudo -E sudo -u $USER -E bash -c "${ANDROID_SDK_ROOT}/emulator/${EMU_COMMAND} -avd test ${AUDIO} ${EMU_PARAMS} &"
 
   # Wait for emulator start
   - ./scripts/android-wait-for-emulator.sh
@@ -137,7 +145,8 @@ install:
   - source $GRAVIS/install-jdk
 
 script:
-  - sudo ./scripts/build-libwally-core.sh >/dev/null
+  - sudo ./scripts/install_deps.sh >/dev/null
+  - sudo ./scripts/build.sh
   - if [ $TEST = true ]; then ./gradlew clean testInhouseDebugUnitTest connectedInhouseDebugAndroidTest; fi
   - if [ $DEPLOY = true ]; then ./gradlew clean -x test assembleInhouseDebug appCenterUploadInhouseDebug; else echo 'Ignored due to testing or PR or non-master branch'; fi
 

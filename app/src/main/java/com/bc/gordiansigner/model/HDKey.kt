@@ -5,6 +5,10 @@ import com.blockstream.libwally.Wally.*
 
 class HDKey {
 
+    companion object {
+        fun fingerprintFromSeed(seed: ByteArray) = HDKey(seed, Network.TEST).fingerprintHex
+    }
+
     private val rootKey: Any
 
     private constructor(key: Any, network: Network) {

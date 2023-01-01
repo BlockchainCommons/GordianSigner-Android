@@ -15,12 +15,6 @@ class AccountMapService @Inject constructor(
     fileStorageApi: FileStorageApi
 ) : BaseService(sharedPrefApi, fileStorageApi) {
 
-    fun saveAccountMap(accountMap: AccountMap): Single<AccountMap> {
-        //TODO: save account map, implement later
-
-        return Single.just(accountMap)
-    }
-
     fun getAccountMapInfo(accountMapString: String): Single<Pair<AccountMap, Descriptor>> =
         Single.fromCallable {
             val accountMap = newGsonInstance().fromJson(accountMapString, AccountMap::class.java)
@@ -35,13 +29,9 @@ class AccountMapService @Inject constructor(
         hdKey: HDKey
     ): Single<String> {
         return Single.fromCallable {
-            if (!descriptor.isCompleted()) {
-                descriptor.updatePartialAccountMapFromKey(hdKey)
-            }
+            descriptor.updatePartialAccountMapFromKey(hdKey)
             AccountMap(descriptor.toString(), accountMap.blockheight, accountMap.label)
         }
-            .subscribeOn(Schedulers.computation())
-            .flatMap { saveAccountMap(it) }
             .map {
                 newGsonInstance().toJson(it)
             }

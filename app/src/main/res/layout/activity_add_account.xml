@@ -35,10 +35,10 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
-        android:background="@color/mine_shaft"
+        android:background="@drawable/bordered_rounded_background"
         android:imeOptions="actionDone"
         android:inputType="text"
-        android:padding="8dp"
+        android:padding="10dp"
         android:textColor="@color/white"
         android:textColorHint="@color/gray"
         android:textSize="14sp"
@@ -70,8 +70,56 @@
         android:background="@drawable/bordered_grey_rounded_background"
         android:padding="16dp"
         android:textSize="14sp"
-        app:layout_constraintBottom_toTopOf="@id/buttonAddSigner"
+        app:layout_constraintBottom_toTopOf="@id/aliasEditText"
         app:layout_constraintTop_toBottomOf="@id/editText" />
+
+    <androidx.appcompat.widget.AppCompatEditText
+        android:id="@+id/aliasEditText"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="16dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bordered_grey_rounded_background"
+        android:hint="@string/alias"
+        android:imeOptions="actionDone"
+        android:inputType="text"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp"
+        android:textColor="@color/white"
+        android:textColorHint="@color/gray"
+        app:layout_constraintBottom_toTopOf="@id/buttonAddSigner"
+        app:layout_constraintEnd_toStartOf="@id/layoutSave"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/wordsEditText" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layoutSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintBottom_toTopOf="@id/buttonAddSigner"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/wordsEditText">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/save_seed"
+            app:layout_constraintBottom_toTopOf="@id/scSavePrivate"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/scSavePrivate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/buttonAddSigner"

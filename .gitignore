@@ -4,7 +4,6 @@
 ### Android ###
 # Built application files
 *.apk
-*.aar
 *.ap_
 *.aab
 
@@ -106,5 +105,6 @@ Wally.java
 keystores/release.keystore
 keystores/release.properties
 *.properties
+*.aar
 
 # End of Specific for project

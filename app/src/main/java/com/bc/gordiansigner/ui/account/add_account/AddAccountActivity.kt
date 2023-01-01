@@ -3,9 +3,11 @@ package com.bc.gordiansigner.ui.account.add_account
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Color
+import android.os.Bundle
 import android.text.Spannable
 import android.text.style.ForegroundColorSpan
 import android.util.Log
+import android.view.Menu
 import android.view.MenuItem
 import android.view.inputmethod.EditorInfo
 import androidx.biometric.BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED
@@ -13,10 +15,13 @@ import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
 import com.bc.gordiansigner.R
 import com.bc.gordiansigner.helper.Bip39
+import com.bc.gordiansigner.helper.Error.FINGERPRINT_NOT_MATCH_ERROR
 import com.bc.gordiansigner.helper.KeyStoreHelper
-import com.bc.gordiansigner.helper.Network
 import com.bc.gordiansigner.helper.ext.enrollDeviceSecurity
+import com.bc.gordiansigner.helper.ext.hideKeyBoard
+import com.bc.gordiansigner.helper.ext.replaceSpaces
 import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
+import com.bc.gordiansigner.model.KeyInfo
 import com.bc.gordiansigner.ui.BaseAppCompatActivity
 import com.bc.gordiansigner.ui.DialogController
 import com.bc.gordiansigner.ui.Navigator
@@ -28,6 +33,22 @@ class AddAccountActivity : BaseAppCompatActivity() {
 
     companion object {
         private const val TAG = "AddAccountActivity"
+        private const val KEY_INFO = "key_info"
+        private const val NEED_RESULT = "need_result"
+        private const val KEY_SEED = "key_seed"
+
+        fun getBundle(keyInfo: KeyInfo?, needResult: Boolean = true) = Bundle().apply {
+            if (keyInfo?.isEmpty() == false) {
+                putParcelable(KEY_INFO, keyInfo)
+                putBoolean(NEED_RESULT, needResult)
+            }
+        }
+
+        fun extractResultData(intent: Intent): Pair<KeyInfo?, String?> {
+            val keyInfo = intent.getParcelableExtra<KeyInfo>(KEY_INFO)
+            val seed = intent.getStringExtra(KEY_SEED)
+            return Pair(keyInfo, seed)
+        }
     }
 
     @Inject
@@ -38,6 +59,9 @@ class AddAccountActivity : BaseAppCompatActivity() {
 
     @Inject
     internal lateinit var dialogController: DialogController
+
+    private var shouldReturnResult = false
+    private var keyInfo: KeyInfo? = null
 
     private val bip39Words = Bip39.words
     private var autoCompleteCharCount = -1
@@ -52,24 +76,30 @@ class AddAccountActivity : BaseAppCompatActivity() {
     override fun initComponents() {
         super.initComponents()
 
-        title = getString(R.string.import_account)
+        intent.getParcelableExtra<KeyInfo>(KEY_INFO)?.let {
+            keyInfo = it
+            aliasEditText.setText(it.alias)
+            tvHeader.text = getString(R.string.signer_format, it.fingerprint, it.alias)
+        }
+        shouldReturnResult = intent.getBooleanExtra(NEED_RESULT, false)
+
+        title = ""
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         buttonAddSigner.setSafetyOnclickListener {
-            importWallet()
+            if (addedWords.isEmpty()) {
+                dialogController.alert(R.string.warning, R.string.please_input_your_recovery_words)
+            } else {
+                importWallet()
+            }
         }
 
         buttonAdd.setSafetyOnclickListener {
-            if (autoCompleteCharCount >= 0) {
-                val word = editText.text.toString()
-                addedWords.add(word)
+            val wordsString = editText.text?.replaceSpaces() ?: return@setSafetyOnclickListener
+            val words = wordsString.split(" ")
+            this.hideKeyBoard()
 
-                wordsEditText.append("${if (addedWords.size > 1) "\n" else ""}${addedWords.size}. $word")
-
-                autoCompleteCharCount = -1
-                editText.setText("")
-                editText.hint = getString(R.string.add_word_format, addedWords.size + 1)
-            }
+            processWords(words)
         }
 
         buttonRemove.setSafetyOnclickListener {
@@ -146,11 +176,21 @@ class AddAccountActivity : BaseAppCompatActivity() {
         viewModel.importAccountLiveData.asLiveData().observe(this, Observer { res ->
             when {
                 res.isSuccess() -> {
-                    dialogController.alert(
-                        R.string.success,
-                        R.string.seed_words_encrypted_and_saved
-                    ) {
-                        finish()
+                    res.data()?.let { (keyInfo, xprv) ->
+                        dialogController.alert(
+                            R.string.success,
+                            if (scSavePrivate.isChecked) R.string.seed_words_encrypted_and_saved else R.string.your_account_has_been_saved_to_the_account_book
+                        ) {
+                            if (!shouldReturnResult) {
+                                navigator.anim(RIGHT_LEFT).finishActivity()
+                            } else {
+                                val intent = Intent().apply {
+                                    putExtra(KEY_SEED, xprv)
+                                    putExtra(KEY_INFO, keyInfo)
+                                }
+                                navigator.anim(RIGHT_LEFT).finishActivityForResult(intent)
+                            }
+                        }
                     }
                 }
 
@@ -177,19 +217,64 @@ class AddAccountActivity : BaseAppCompatActivity() {
                                     })
                             })
                     ) {
+                        val message = when (res.throwable()!!) {
+                            FINGERPRINT_NOT_MATCH_ERROR -> R.string.your_input_signer_is_not_matched
+                            else -> R.string.some_thing_went_wrong_your_seed_words_were_not_saved
+                        }
                         dialogController.alert(
                             R.string.error,
-                            R.string.some_thing_went_wrong_your_seed_words_were_not_saved
+                            message
                         )
                     }
                 }
             }
         })
+
+        viewModel.generateSignerLiveData.asLiveData().observe(this, Observer { res ->
+            when {
+                res.isSuccess() -> {
+                    res.data()?.let { mnemonic ->
+                        addedWords.clear()
+                        wordsEditText.text = ""
+
+                        val words = mnemonic.split(" ")
+                        this.hideKeyBoard()
+                        processWords(words)
+
+                        dialogController.alert(
+                            R.string.generated_successfully,
+                            R.string.please_write_down_and_save_your_12_recovery_words
+                        )
+                    }
+                }
+
+                res.isError() -> {
+                    dialogController.alert(res.throwable())
+                }
+            }
+        })
+    }
+
+    private fun processWords(words: List<String>) {
+        if (words.all { bip39Words.contains(it) }) {
+            words.forEach { word ->
+                addedWords.add(word)
+                wordsEditText.append("${if (addedWords.size > 1) "\n" else ""}${addedWords.size}. $word")
+            }
+
+            autoCompleteCharCount = -1
+            editText.setText("")
+            editText.hint = getString(R.string.add_word_format, addedWords.size + 1)
+        } else {
+            dialogController.alert(R.string.warning, R.string.incorrect_words)
+        }
     }
 
     private fun importWallet() {
         val phrase = addedWords.joinToString(separator = " ")
-        viewModel.importWallet(phrase, Network.TEST)
+        val alias = aliasEditText.text.toString()
+        val isSavePrivateKey = scSavePrivate.isChecked
+        viewModel.importWallet(phrase, alias, isSavePrivateKey, keyInfo)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -200,10 +285,20 @@ class AddAccountActivity : BaseAppCompatActivity() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        if (keyInfo != null) return false
+
+        menuInflater.inflate(R.menu.add_account_menu, menu)
+        return true
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             android.R.id.home -> {
                 navigator.anim(RIGHT_LEFT).finishActivity()
+            }
+            R.id.action_generate -> {
+                viewModel.generateSigner()
             }
         }
 
@@ -213,5 +308,10 @@ class AddAccountActivity : BaseAppCompatActivity() {
     private fun setAutoComplete(value: String) {
         isUserChanged = false
         editText.setText(value)
+    }
+
+    override fun onBackPressed() {
+        navigator.anim(RIGHT_LEFT).finishActivity()
+        super.onBackPressed()
     }
 }

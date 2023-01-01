@@ -5,43 +5,53 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bc.gordiansigner.R
-import com.bc.gordiansigner.helper.ext.gone
-import com.bc.gordiansigner.helper.ext.setSafetyOnclickListener
-import com.bc.gordiansigner.helper.ext.visible
+import com.bc.gordiansigner.helper.SIMPLE_DATE_TIME_FORMAT
+import com.bc.gordiansigner.helper.ext.*
+import com.bc.gordiansigner.model.KeyInfo
 import kotlinx.android.synthetic.main.item_signer.view.*
 
 class AccountRecyclerViewAdapter(
-    private var onDelete: ((String) -> Unit)? = null
+    private var onDelete: ((KeyInfo) -> Unit)? = null
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val items = mutableListOf<String>()
-    private var onItemSelected: ((String) -> Unit)? = null
+    private val items = mutableListOf<KeyInfo>()
+    private var onItemSelected: ((KeyInfo) -> Unit)? = null
     var isEditing = false
         set(value) {
             field = value
             notifyDataSetChanged()
         }
 
-    fun set(items: List<String>) {
+    fun set(items: List<KeyInfo>) {
         this.items.clear()
         this.items.addAll(items)
         notifyDataSetChanged()
     }
 
-    fun add(item: String) {
+    fun add(item: KeyInfo) {
         items.add(item)
         notifyItemInserted(items.size - 1)
     }
 
+    fun update(item: KeyInfo) {
+        val index = items.indexOf(item)
+        if (index != -1) {
+            val keyInfo = items[index]
+            keyInfo.alias = item.alias
+            keyInfo.isSaved = item.isSaved
+            notifyItemChanged(index)
+        }
+    }
+
     fun remove(fingerprint: String) {
-        val index = items.indexOf(fingerprint)
+        val index = items.indexOfFirst { it.fingerprint == fingerprint }
         if (index != -1) {
             items.removeAt(index)
             notifyItemRemoved(index)
         }
     }
 
-    fun setItemSelectedListener(callback: (String) -> Unit) {
+    fun setItemSelectedListener(callback: (KeyInfo) -> Unit) {
         this.onItemSelected = callback
     }
 
@@ -65,26 +75,40 @@ class AccountRecyclerViewAdapter(
 
     class KeyViewHolder(
         view: View,
-        onDelete: ((String) -> Unit)?,
-        onItemSelected: ((String) -> Unit)?
+        onDelete: ((KeyInfo) -> Unit)?,
+        onItemSelected: ((KeyInfo) -> Unit)?
     ) : RecyclerView.ViewHolder(view) {
 
-        private lateinit var fingerprint: String
+        private lateinit var keyInfo: KeyInfo
 
         init {
             itemView.buttonDelete.setSafetyOnclickListener {
-                onDelete?.invoke(fingerprint)
+                onDelete?.invoke(keyInfo)
             }
 
             itemView.setSafetyOnclickListener {
-                onItemSelected?.invoke(fingerprint)
+                onItemSelected?.invoke(keyInfo)
             }
         }
 
-        fun bind(fingerprint: String, isEditing: Boolean) {
-            this.fingerprint = fingerprint
+        fun bind(keyInfo: KeyInfo, isEditing: Boolean) {
+            this.keyInfo = keyInfo
             with(itemView) {
-                tvFingerprint.text = fingerprint
+                tvAlias.text =
+                    if (keyInfo.alias.isNotEmpty()) keyInfo.alias else context.getString(R.string.unnamed)
+
+                tvFingerprint.text =
+                    context.getString(R.string.fingerprint_format, keyInfo.fingerprint)
+
+                tvLastUsed.text = context.getString(R.string.last_used_format, keyInfo.lastUsed?.toString(
+                    SIMPLE_DATE_TIME_FORMAT))
+
+                if (keyInfo.isSaved) {
+                    buttonKey.visible()
+                } else {
+                    buttonKey.gone()
+                }
+
                 if (isEditing) {
                     buttonDelete.visible(true)
                 } else {

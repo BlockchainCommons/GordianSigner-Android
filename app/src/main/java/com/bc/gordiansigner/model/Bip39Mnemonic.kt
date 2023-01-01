@@ -4,7 +4,7 @@ import com.blockstream.libwally.Wally.*
 
 class Bip39Mnemonic {
 
-    private val mnemonic: String
+    val mnemonic: String
 
     constructor(words: String) {
         bip39_mnemonic_validate(bip39_get_wordlist(null), words)

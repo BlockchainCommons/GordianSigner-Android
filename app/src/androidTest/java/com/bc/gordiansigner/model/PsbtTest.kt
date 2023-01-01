@@ -1,6 +1,7 @@
 package com.bc.gordiansigner.model
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.bc.gordiansigner.helper.GeneralError
 import com.bc.gordiansigner.helper.Network
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -65,7 +66,7 @@ class PsbtTest {
         assertEquals(validPsbtData["signed_base64_psbt"] as String, psbt.toBase64())
     }
 
-    @Test(expected = IllegalArgumentException::class)
+    @Test(expected = GeneralError::class)
     fun testSignPsbtInvalidKey() {
         val psbt = Psbt(validPsbtData["base64_psbt"] as String)
         invalidRecoveryPhrase.forEach {
